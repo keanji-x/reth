@@ -17,6 +17,7 @@ pub use config::{
     TransactionFetcherConfig, TransactionPropagationMode, TransactionPropagationPolicy,
     TransactionsManagerConfig,
 };
+use rustc_hash::FxHashMap;
 pub use validation::*;
 
 pub(crate) use fetcher::{FetchEvent, TransactionFetcher};
@@ -62,7 +63,7 @@ use reth_transaction_pool::{
     TransactionPool, ValidPoolTransaction,
 };
 use std::{
-    collections::{hash_map::Entry, HashMap, HashSet},
+    collections::{hash_map::Entry, HashSet},
     pin::Pin,
     sync::{
         atomic::{AtomicUsize, Ordering},
@@ -181,7 +182,7 @@ impl<N: NetworkPrimitives> TransactionsHandle<N> {
     pub async fn get_transaction_hashes(
         &self,
         peers: Vec<PeerId>,
-    ) -> Result<HashMap<PeerId, HashSet<TxHash>>, RecvError> {
+    ) -> Result<FxHashMap<PeerId, HashSet<TxHash>>, RecvError> {
         if peers.is_empty() {
             return Ok(Default::default())
         }
@@ -257,7 +258,7 @@ pub struct TransactionsManager<
     ///
     /// This way we can track incoming transactions and prevent multiple pool imports for the same
     /// transaction
-    transactions_by_peers: HashMap<TxHash, HashSet<PeerId>>,
+    transactions_by_peers: FxHashMap<TxHash, HashSet<PeerId>>,
     /// Transactions that are currently imported into the `Pool`.
     ///
     /// The import process includes:
@@ -275,7 +276,7 @@ pub struct TransactionsManager<
     /// Bad imports.
     bad_imports: LruCache<TxHash>,
     /// All the connected peers.
-    peers: HashMap<PeerId, PeerMetadata<N>>,
+    peers: FxHashMap<PeerId, PeerMetadata<N>>,
     /// Send half for the command channel.
     ///
     /// This is kept so that a new [`TransactionsHandle`] can be created at any time.
@@ -1072,7 +1073,7 @@ where
                 self.propagate_transactions(txs, PropagationMode::Forced);
             }
             TransactionsCommand::GetTransactionHashes { peers, tx } => {
-                let mut res = HashMap::with_capacity(peers.len());
+                let mut res = FxHashMap::with_capacity_and_hasher(peers.len(), Default::default());
                 for peer_id in peers {
                     let hashes = self
                         .peers
@@ -1906,7 +1907,7 @@ enum TransactionsCommand<N: NetworkPrimitives = EthNetworkPrimitives> {
     /// Request transaction hashes known by specific peers from the [`TransactionsManager`].
     GetTransactionHashes {
         peers: Vec<PeerId>,
-        tx: oneshot::Sender<HashMap<PeerId, HashSet<TxHash>>>,
+        tx: oneshot::Sender<FxHashMap<PeerId, HashSet<TxHash>>>,
     },
     /// Requests a clone of the sender channel to the peer.
     GetPeerSender {

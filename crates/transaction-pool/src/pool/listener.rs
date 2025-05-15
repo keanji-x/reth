@@ -7,6 +7,7 @@ use crate::{
 };
 use alloy_primitives::{TxHash, B256};
 use futures_util::Stream;
+use rustc_hash::FxHashMap;
 use std::{
     collections::{hash_map::Entry, HashMap},
     pin::Pin,
@@ -77,7 +78,7 @@ pub(crate) struct PoolEventBroadcast<T: PoolTransaction> {
     /// All listeners for all transaction events.
     all_events_broadcaster: AllPoolEventsBroadcaster<T>,
     /// All listeners for events for a certain transaction hash.
-    broadcasters_by_hash: HashMap<TxHash, PoolEventBroadcaster>,
+    broadcasters_by_hash: FxHashMap<TxHash, PoolEventBroadcaster>,
 }
 
 impl<T: PoolTransaction> Default for PoolEventBroadcast<T> {

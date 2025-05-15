@@ -26,10 +26,11 @@ use reth_eth_wire_types::HandleMempoolData;
 use reth_ethereum_primitives::TransactionSigned;
 use reth_execution_types::ChangedAccount;
 use reth_primitives_traits::{Block, InMemorySize, Recovered, SealedBlock, SignedTransaction};
+use rustc_hash::FxHashMap;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashSet,
     fmt,
     fmt::Debug,
     future::Future,
@@ -581,7 +582,7 @@ impl<T: PoolTransaction> Default for AllPoolTransactions<T> {
 
 /// Represents transactions that were propagated over the network.
 #[derive(Debug, Clone, Eq, PartialEq, Default)]
-pub struct PropagatedTransactions(pub HashMap<TxHash, Vec<PropagateKind>>);
+pub struct PropagatedTransactions(pub FxHashMap<TxHash, Vec<PropagateKind>>);
 
 /// Represents how a transaction was propagated over the network.
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]

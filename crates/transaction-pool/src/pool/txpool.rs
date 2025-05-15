@@ -35,7 +35,7 @@ use rustc_hash::FxHashMap;
 use smallvec::SmallVec;
 use std::{
     cmp::Ordering,
-    collections::{btree_map::Entry, hash_map, BTreeMap, HashMap, HashSet},
+    collections::{btree_map::Entry, hash_map, BTreeMap, HashSet},
     fmt,
     ops::Bound::{Excluded, Unbounded},
     sync::Arc,
@@ -1201,7 +1201,7 @@ pub(crate) struct AllTransactions<T: PoolTransaction> {
     /// Max number of executable transaction slots guaranteed per account
     max_account_slots: usize,
     /// _All_ transactions identified by their hash.
-    by_hash: HashMap<TxHash, Arc<ValidPoolTransaction<T>>>,
+    by_hash: FxHashMap<TxHash, Arc<ValidPoolTransaction<T>>>,
     /// _All_ transaction in the pool sorted by their sender and nonce pair.
     txs: BTreeMap<TransactionId, PoolInternalTransaction<T>>,
     /// Tracks the number of transactions by sender that are currently in the pool.
@@ -3020,7 +3020,7 @@ mod tests {
 
         assert_eq!(pool.pending_pool.len(), 2);
 
-        let mut changed_senders = HashMap::default();
+        let mut changed_senders = FxHashMap::default();
         changed_senders.insert(
             id.sender,
             SenderInfo { state_nonce: next.nonce(), balance: U256::from(1_000) },
@@ -3196,7 +3196,7 @@ mod tests {
         assert_eq!(2, pool.queued_transactions().len());
 
         // Simulate new block arrival - and chain balance increase.
-        let mut updated_accounts = HashMap::default();
+        let mut updated_accounts = FxHashMap::default();
         on_chain_balance = U256::from(300);
         updated_accounts.insert(
             v0.sender_id(),
@@ -3250,7 +3250,7 @@ mod tests {
         assert!(pool.pending_transactions().is_empty());
 
         // Simulate new block arrival - and chain nonce increasing.
-        let mut updated_accounts = HashMap::default();
+        let mut updated_accounts = FxHashMap::default();
         on_chain_nonce += 1;
         updated_accounts.insert(
             v0.sender_id(),
@@ -3522,7 +3522,7 @@ mod tests {
         assert_eq!(1, pool.pending_transactions().len());
 
         // Simulate new block arrival - and chain nonce increasing.
-        let mut updated_accounts = HashMap::default();
+        let mut updated_accounts = FxHashMap::default();
         on_chain_nonce += 1;
         updated_accounts.insert(
             v0.sender_id(),

@@ -51,9 +51,9 @@ use reth_network_api::PeerRequest;
 use reth_network_p2p::error::{RequestError, RequestResult};
 use reth_network_peers::PeerId;
 use reth_primitives_traits::SignedTransaction;
+use rustc_hash::FxHashMap;
 use schnellru::ByLength;
 use std::{
-    collections::HashMap,
     pin::Pin,
     task::{ready, Context, Poll},
     time::Duration,
@@ -429,7 +429,7 @@ impl<N: NetworkPrimitives> TransactionFetcher<N> {
     /// the request by checking the transactions seen by the peer against the buffer.
     pub fn on_fetch_pending_hashes(
         &mut self,
-        peers: &HashMap<PeerId, PeerMetadata<N>>,
+        peers: &FxHashMap<PeerId, PeerMetadata<N>>,
         has_capacity_wrt_pending_pool_imports: impl Fn(usize) -> bool,
     ) {
         let mut hashes_to_request = RequestTxHashes::with_capacity(
@@ -1420,7 +1420,7 @@ mod test {
         for hash in &seen_hashes {
             peer_2_data.seen_transactions.insert(*hash);
         }
-        let mut peers = HashMap::default();
+        let mut peers = FxHashMap::default();
         peers.insert(peer_1, peer_1_data);
         peers.insert(peer_2, peer_2_data);
 
