@@ -9,7 +9,7 @@ use alloy_primitives::{TxHash, B256};
 use futures_util::Stream;
 use rustc_hash::FxHashMap;
 use std::{
-    collections::{hash_map::Entry, HashMap},
+    collections::hash_map::Entry,
     pin::Pin,
     sync::Arc,
     task::{Context, Poll},
@@ -85,7 +85,7 @@ impl<T: PoolTransaction> Default for PoolEventBroadcast<T> {
     fn default() -> Self {
         Self {
             all_events_broadcaster: AllPoolEventsBroadcaster::default(),
-            broadcasters_by_hash: HashMap::default(),
+            broadcasters_by_hash: FxHashMap::default(),
         }
     }
 }
